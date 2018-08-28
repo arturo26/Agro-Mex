@@ -1,0 +1,192 @@
+---
+title: "Mexican Agriculture"
+author: "Galactor"
+date: "27/8/2018"
+output: html_document
+---
+## Mexican Agriculture {.tabset .tabset-fade .tabset-pills}
+
+###Intro
+
+```{r}
+library(dplyr)
+library(ggplot2)
+library(magrittr)
+library(tidyr)
+library(knitr)
+library(mxmaps)
+```
+
+```{r}
+#We load the data imported directly from the Ministry of Agriculture´s website. We will analyse 2017 
+mex <- read.csv(file="Agro_2017.csv", header=TRUE, sep=",")
+```
+
+
+
+
+```{r}
+mex %>% select(Nomcultivo) %>% unique %>% arrange (Nomcultivo) %>% kable("html",row.names = TRUE) 
+```
+
+There are more than 300 different kinds of crops grown in Mexico. Maize is a very important crop for Mexicans, 
+we would like to know which states have the largest production.
+
+```{r}
+mex %>% select(Nomcultivo, Idcultivo, Volumenproduccion) %>%  group_by(Nomcultivo) %>% summarise(total=sum(Volumenproduccion)) %>% arrange(desc(total))
+```
+
+Measured in tons, strawberry and sugar cane have the largest production. We excluded tobacco plants since they are measured in plants rather than tons.
+
+
+```{r}
+mex %>% select(Nomcultivo, Idcultivo, Valorproduccion) %>%  group_by(Nomcultivo) %>% summarise(total=sum(Valorproduccion)) %>% arrange(desc(total))
+```
+
+Measured in value($), maize and avocado have the most valuable production.
+
+###Maize
+
+```{r}
+#Note that in this analysis we include the 3 types of maize available in the data set
+
+maize1 <- mex %>% select(Nomcultivo, Nomestado, Idcultivo, Volumenproduccion, Idestado) %>% filter(Idcultivo==c("7470000", "7490000", "7510000")) %>% group_by(Nomestado, Idestado) %>% summarise(value=sum(Volumenproduccion)) %>% arrange(desc(value))
+
+maize1
+```
+
+Jalisco and Sinaloa are the largest maize producers in Mexico.
+
+```{r}
+data("maize1")
+maize1$region <- maize1$Idestado
+mxstate_choropleth(maize1, title = "Maize production, by state")
+```
+
+
+
+
+```{r}
+
+
+maize2 <- mex %>% select(Nomcultivo, Nomestado, Idcultivo, Volumenproduccion, Nommunicipio, Idestado, Idmunicipio) %>% filter(Idcultivo==c("7470000", "7490000", "7510000")) %>% group_by(Nomestado, Nommunicipio, Idestado, Idmunicipio) %>% summarise(value=sum(Volumenproduccion)) %>% arrange(desc(value))
+
+maize2
+
+
+
+```
+
+We can see that municipalities producing the highest are located at Sinaloa, Jalisco Chihuahua and Coahuila mainly.
+
+### Avocado 
+
+```{r}
+
+avo1 <- mex %>% select(Nomcultivo, Nomestado, Idcultivo, Volumenproduccion, Idestado) %>% filter(Idcultivo==c("5060000")) %>% group_by(Nomestado, Idestado) %>% summarise(value=sum(Volumenproduccion)) %>% arrange(desc(value))
+
+avo1
+```
+
+Michoacan clearly dominates the national avocado production
+
+```{r}
+avo1$region <- avo1$Idestado
+mxstate_choropleth(avo1, title = "Avocado production, by state")
+```
+
+
+```{r}
+mex %>% select(Nomcultivo, Nomestado, Idcultivo, Volumenproduccion, Nommunicipio) %>% filter(Idcultivo==c("5060000")) %>% group_by(Nomestado, Nommunicipio) %>% summarise(total=sum(Volumenproduccion)) %>% arrange(desc(total))
+```
+
+No surprise that the majority of the municipalities included in the list are locates at Michoacan.
+
+###Strawberry
+
+```{r}
+
+
+str1 <- mex %>% select(Nomcultivo, Nomestado, Idcultivo, Volumenproduccion, Idestado) %>% filter(Idcultivo==c("6820000")) %>% group_by(Nomestado, Idestado) %>% summarise(value=sum(Volumenproduccion)) %>% arrange(desc(value))
+
+str1
+```
+
+```{r}
+
+str1$region <- str1$Idestado
+mxstate_choropleth(str1, title = "Strawberry production, by state")
+
+```
+
+Michoacan clearly dominates strawberry production in Mexico
+
+```{r}
+mex %>% select(Nomcultivo, Nomestado, Idcultivo, Volumenproduccion, Nommunicipio) %>% filter(Idcultivo==c("6820000")) %>% group_by(Nomestado, Nommunicipio) %>% summarise(total=sum(Volumenproduccion)) %>% arrange(desc(total))
+```
+
+
+###Peppers
+
+```{r}
+
+ch1 <-mex %>% select(Nomcultivo, Nomestado, Idcultivo, Volumenproduccion,Idestado) %>% filter(Idcultivo==c("6120000")) %>% group_by(Nomestado, Idestado) %>% summarise(value=sum(Volumenproduccion)) %>% arrange(desc(value))
+
+ch1
+```
+
+```{r}
+
+ch1$region <- ch1$Idestado
+mxstate_choropleth(ch1, title = "Peppers production, by state")
+```
+
+Sinaloa, Chihuahua and Sonora clearly dominte the pepper production in Mexico.
+
+```{r}
+mex %>% select(Nomcultivo, Nomestado, Idcultivo, Volumenproduccion, Nommunicipio) %>% filter(Idcultivo==c("6120000")) %>% group_by(Nomestado, Nommunicipio) %>% summarise(total=sum(Volumenproduccion)) %>% arrange(desc(total))
+```
+
+
+###Sugar Cane
+
+```{r}
+
+sug1<- mex %>% select(Nomcultivo, Nomestado, Idcultivo, Volumenproduccion, Idestado) %>% filter(Idcultivo==c("5820000")) %>% group_by(Nomestado, Idestado) %>% summarise(value=sum(Volumenproduccion)) %>% arrange(desc(value))
+
+sug1
+```
+
+
+```{r}
+sug1$region <- sug1$Idestado
+mxstate_choropleth(sug1, title = "Sugar Cane production, by state")
+```
+
+Veracruz and Jalisco are the largest sugar cane producers.
+
+```{r}
+mex %>% select(Nomcultivo, Nomestado, Idcultivo, Volumenproduccion, Nommunicipio) %>% filter(Idcultivo==c("5820000")) %>% group_by(Nomestado, Nommunicipio) %>% summarise(total=sum(Volumenproduccion)) %>% arrange(desc(total))
+```
+
+
+###Cotton
+
+```{r}
+
+cot1 <- mex %>% select(Nomcultivo, Nomestado, Idcultivo, Volumenproduccion, Idestado) %>% filter(Idcultivo==c("5190000")) %>% group_by(Nomestado, Idestado) %>% summarise(value=sum(Volumenproduccion)) %>% arrange(desc(value))
+
+cot1
+```
+
+
+```{r}
+cot1$region <- cot1$Idestado
+mxstate_choropleth(cot1, title = "Peppers production, by state")
+```
+
+Chihuahua and Baja California lead the list in cotton production
+
+```{r}
+mex %>% select(Nomcultivo, Nomestado, Idcultivo, Volumenproduccion, Nommunicipio) %>% filter(Idcultivo==c("5190000")) %>% group_by(Nomestado, Nommunicipio) %>% summarise(total=sum(Volumenproduccion)) %>% arrange(desc(total))
+```
