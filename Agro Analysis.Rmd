@@ -182,7 +182,7 @@ cot1
 
 ```{r}
 cot1$region <- cot1$Idestado
-mxstate_choropleth(cot1, title = "Peppers production, by state")
+mxstate_choropleth(cot1, title = "Cotton production, by state")
 ```
 
 Chihuahua and Baja California lead the list in cotton production
